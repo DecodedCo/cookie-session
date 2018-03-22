@@ -12,9 +12,9 @@
  * @private
  */
 
-var Buffer = require('safe-buffer').Buffer
 var debug = require('debug')('cookie-session')
 var Cookies = require('cookies')
+var lzString = require('lz-string')
 var onHeaders = require('on-headers')
 
 /**
@@ -287,12 +287,11 @@ function createSession (req) {
  */
 
 function decode (string) {
-  var body = Buffer.from(string, 'base64').toString('utf8')
-  return JSON.parse(body)
+  return JSON.parse(lzString.decompressFromBase64(string))
 }
 
 /**
- * Encode an object into a base64-encoded JSON string.
+ * Encode an object into a base64-encoded compressed JSON string.
  *
  * @param {Object} body
  * @return {String}
@@ -300,8 +299,7 @@ function decode (string) {
  */
 
 function encode (body) {
-  var str = JSON.stringify(body)
-  return Buffer.from(str).toString('base64')
+  return lzString.compressToBase64(JSON.stringify(body))
 }
 
 /**
